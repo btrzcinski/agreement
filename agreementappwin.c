@@ -1,7 +1,11 @@
 #include <gtk/gtk.h>
 
+#include <stdbool.h>
+
 #include "agreementapp.h"
 #include "agreementappwin.h"
+
+#define STR(x) #x
 
 struct _AgreementAppWindow
 {
@@ -15,8 +19,9 @@ struct _AgreementAppWindowClass
 
 G_DEFINE_TYPE(AgreementAppWindow, agreement_app_window, GTK_TYPE_APPLICATION_WINDOW);
 
-static void agreement_app_window_init(AgreementAppWindow *app)
+static void agreement_app_window_init(AgreementAppWindow *win)
 {
+
 }
 
 static void agreement_app_window_class_init(AgreementAppWindowClass *class)
@@ -30,6 +35,14 @@ AgreementAppWindow *agreement_app_window_new(AgreementApp *app)
 
 void agreement_app_window_open (AgreementAppWindow *win, GFile *file)
 {
+    static bool called = false;
+    if (called)
+    {
+        g_warning( STR(__FUNCTION__) " was already called");
+        return;
+    }
+
+    called = true;
 }
 
 

@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <glib.h>
 
 #include "agreementapp.h"
 #include "agreementappwin.h"
@@ -46,7 +47,15 @@ static void agreement_app_open(GApplication *app, GFile **files,
 
     for (i = 0; i < n_files; i++)
     {
-        agreement_app_window_open(win, files[i]);
+        if (i == 0)
+        {
+            g_message("Opening file: %s", g_file_get_path(files[i]));
+            agreement_app_window_open(win, files[i]);
+        }
+        else
+        {
+            g_warning("Ignoring file: %s", g_file_get_path(files[i]));
+        }
     }
 
     gtk_window_present(GTK_WINDOW(win));
