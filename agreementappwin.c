@@ -19,6 +19,8 @@ struct _AgreementAppWindowClass
 
 G_DEFINE_TYPE(AgreementAppWindow, agreement_app_window, GTK_TYPE_APPLICATION_WINDOW);
 
+static GtkTextBuffer* agreement_text_buffer;
+
 static void agreement_app_window_init(AgreementAppWindow *win)
 {
     gtk_window_set_title(GTK_WINDOW(win), "Agreement");
@@ -34,9 +36,8 @@ static void agreement_app_window_init(AgreementAppWindow *win)
     gtk_widget_set_vexpand(view, true);
     gtk_grid_attach(GTK_GRID(grid), view, 0, 0, 1, 1);
 
-    GtkTextBuffer *buffer;
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
-    gtk_text_buffer_set_text(buffer, "Hello world", -1);
+    agreement_text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+    gtk_text_buffer_set_text(agreement_text_buffer, "No file loaded", -1);
 
     GtkWidget *flow_box;
     flow_box = gtk_flow_box_new();
@@ -47,11 +48,13 @@ static void agreement_app_window_init(AgreementAppWindow *win)
     GtkWidget *no_button;
     no_button = gtk_button_new_from_icon_name("window-close", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_always_show_image(GTK_BUTTON(no_button), true);
-    gtk_button_set_label(GTK_BUTTON(no_button), "I do not agree");
+    gtk_button_set_label(GTK_BUTTON(no_button), "No, I do not agree");
     gtk_container_add(GTK_CONTAINER(flow_box), no_button);
 
     GtkWidget *yes_button;
-    yes_button = gtk_button_new_from_stock(GTK_STOCK_YES);
+    yes_button = gtk_button_new_from_icon_name("go-next", GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_always_show_image(GTK_BUTTON(yes_button), true);
+    gtk_button_set_label(GTK_BUTTON(yes_button), "Yes, I agree");
     gtk_container_add(GTK_CONTAINER(flow_box), yes_button);
 
     gtk_widget_show_all(GTK_WIDGET(win));
@@ -74,8 +77,22 @@ void agreement_app_window_open (AgreementAppWindow *win, GFile *file)
         g_warning( STR(__FUNCTION__) " was already called");
         return;
     }
-
     called = true;
+
+    char *file_contents;
+    gsize content_length;
+    gboolean succeeded;
+
+    succeeded = g_file_load_contents(file, NULL, &file_contents,
+            &content_length, NULL, NULL);
+    if (succeeded != TRUE)
+    {
+        g_error("Could not load contents of file");
+        return;
+    }
+
+    gtk_text_buffer_set_text(agreement_text_buffer, file_contents, content_length);
+    g_free(file_contents);
 }
 
 
